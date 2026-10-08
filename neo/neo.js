@@ -193,7 +193,7 @@
       '<div class="foot"><a href="#/settings" class="' + act("settings") + '">' + icon("settings", "sm") + "Settings</a></div></nav>";
     var modules = [["Dashboard", "grid", "../inbox/"], ["Inbox", "inbox", "../inbox/", '<span class="tag">NEW</span>'], ["Purchases", "cart", "../inbox/"], ["Sales", "tag", "../inbox/"], ["Banking", "bank", "../inbox/"], ["Accounting", "layers", "../inbox/", '<span class="chev">' + icon("chevR") + "</span>"], ["Inventory", "box", "../inbox/"], null, ["GST", "gst", "../inbox/"], ["Sync Management", "refresh", "../inbox/"]];
     var modnav = '<nav class="modnav" aria-label="Modules"><div class="items">' + modules.map(function (m) { return m ? '<a href="' + m[2] + '" data-label="' + m[0] + '">' + icon(m[1]) + "<span>" + m[0] + "</span>" + (m[3] || "") + "</a>" : "<hr>"; }).join("") + '<hr><a href="#/" class="active" aria-current="page" data-label="Neo">' + icon("sparkle") + '<span>Neo</span><span class="tag">NEW</span></a></div><button class="collapse" id="modCollapse" title="Collapse sidebar" aria-label="Collapse sidebar">' + icon("collapse") + "</button></nav>";
-    return '<div class="app">' + TopNav() + '<div class="frame">' + modnav + (isChat ? "" : nav) + '<main class="main" id="main">' + (isChat ? view : '<div class="scroll">' + view + "</div>") + "</main></div></div>" + '<div id="overlay"></div>';
+    return '<div class="app">' + TopNav() + '<div class="frame">' + modnav + nav + '<main class="main" id="main">' + (isChat ? view : '<div class="scroll">' + view + "</div>") + "</main></div></div>" + '<div id="overlay"></div>';
   }
   function RecentGroup(r) {
     return '<div class="group" id="recentGroup"><h2>Recent chats <button data-go="#/chat/new" aria-label="New chat" title="New chat">' + icon("plus", "sm") + "</button></h2><ul>" +
@@ -252,7 +252,7 @@
     if (chatInst) { try { chatInst.stop(); } catch (e) {} }
     var restore = id && id !== "new";
     if (id === "new" && !q.q) NeoChat.setActive(null);
-    chatInst = NeoChat.mount(host, { mode: "full", restore: !!restore,
+    chatInst = NeoChat.mount(host, { mode: "full", sidebar: false, restore: !!restore,
       onHistory: function () { var g = document.getElementById("recentGroup"); if (g) g.outerHTML = RecentGroup(route()); },
       onExpand: function () { var st = NeoChat.state(); st.open = true; try { sessionStorage.setItem("neoChat", JSON.stringify(st)); } catch (e) {} location.href = "../inbox/"; },
       onClose: function () { go("#/"); } });

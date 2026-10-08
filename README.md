@@ -35,7 +35,7 @@ same thread; the expand button in the panel opens the current chat full-screen a
 
 On app pages the side panel's Expand button no longer navigates to `neo/#/chat`. The same chat instance grows in place to a
 full-width overlay (history docked left, chat centred, review docked right) and collapses back, so the thread, a running
-answer, drafts, review state and history carry over with no reload. Esc collapses first, then closes. The expanded state is
+answer, drafts, review state and history carry over with no reload. The app's main navigation collapses to its icon rail while Neo is expanded and is restored on collapse; clicking a main-nav item returns to the normal product. The expanded view shows the same Neo sidebar (recent chats, agents, work/runs, knowledge) as the Neo page, whose chat view now shows it too. Esc collapses first, then closes. The expanded state is
 kept in sessionStorage (`ST.expanded`), so it survives moving between app pages. The Neo page/tab is unchanged. Assets bumped to `?v=3`.
 
 ## Files added or changed in v2
