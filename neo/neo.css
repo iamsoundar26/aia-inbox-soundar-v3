@@ -493,10 +493,3 @@ section.suggest .grid { display: grid; grid-template-columns: repeat(6, 1fr); ga
 .neo-panel .expand-link { font-size: 12.5px; font-weight: 600; color: var(--primary); display: inline-flex; align-items: center; gap: 4px; }
 .neo-panel .expand-link:hover { text-decoration: underline; }
 @media (max-width: 640px) { .neo-panel { width: 100vw; } }
-
-/* embedded in the app (expanded floating Neo) */
-.embed .modnav { display: none; }
-.embedbar { height: 44px; flex: none; display: flex; align-items: center; gap: 4px; padding: 0 12px 0 16px; border-bottom: 1px solid var(--line); background: var(--bg); }
-.embedbar .eb-t { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: .08em; font-weight: 700; color: var(--ink-2); text-transform: uppercase; }
-.embedbar .ib { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; color: var(--ink-2); border: 0; background: none; cursor: pointer; }
-.embedbar .ib:hover { background: var(--bg-muted-2); color: var(--ink); }

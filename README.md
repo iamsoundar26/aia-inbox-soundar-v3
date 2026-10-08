@@ -31,14 +31,13 @@ then lists result rows. Selecting a bill row opens the review panel with extract
 type scale with 32px controls. Chats and decisions are kept in sessionStorage so the panel and the full view continue the
 same thread; the expand button in the panel opens the current chat full-screen and the collapse button returns to the app.
 
-## Expand = the Neo page (8 Oct 2026)
+## Expand in place, one instance (8 Oct 2026)
 
-On app pages the side panel's Expand button no longer navigates. The panel widens beside the product nav (which collapses to its
-icon rail), then the Neo workspace itself fades in over it: `neo/?embed=1` in an iframe, so the floating chat and the Neo tab are
-the same UI (home with composer and suggested actions, or the chat view when a chat is open, with the Neo sidebar). Embed mode hides the
-Neo page's own top nav and module nav; collapse and close buttons message the parent (`postMessage {neoEmbed}`). Chats live in
-sessionStorage, so the open conversation carries over; collapsing re-reads that state into the panel. A running answer is stopped on expand.
-Clicking a product nav item, the collapse button or Esc returns to the normal product. The Neo tab keeps the module nav as an icon rail.
+On app pages the side panel's Expand button no longer navigates or loads another page. The same chat instance grows beside the
+product nav (which collapses to its icon rail) and gains the Neo sidebar (recent chats, agents, work/runs, knowledge) on the left, so the
+floating chat and the Neo tab share one layout. The thread, a running answer, the draft in the composer, scroll and review state are the
+same DOM nodes before and after. With no chat open, the larger view shows the Neo home look (greeting and suggested actions). Collapse,
+Esc, or clicking a product nav item returns to the normal product. The Neo tab keeps the module nav as an icon rail and shows the same sidebar.
 
 ## Files added or changed in v2
 

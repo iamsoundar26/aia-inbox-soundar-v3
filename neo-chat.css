@@ -220,8 +220,40 @@ body.nc-host aside[aria-label="Neo"], body.nc-host button[title="Ask Neo (Ctrl J
 .nc .nc-thread:focus, .nc .nc-hhead h2:focus { outline: none; }
 .nc .nc-thread:focus-visible { outline: 2px solid var(--nc-accent-soft); outline-offset: -2px; border-radius: 0; }
 
-/* Expanded Neo workspace (embedded Neo page) over the app, right of the collapsed product nav */
-.nc-xo { position: fixed; top: 50px; right: 0; bottom: 0; left: var(--nc-left, 0px); z-index: 48; background: #fff; opacity: 0; pointer-events: none; transition: opacity 180ms ease; }
-.nc-xo.nc-xo-in { opacity: 1; pointer-events: auto; }
-.nc-xo iframe { width: 100%; height: 100%; border: 0; display: block; }
-@media (prefers-reduced-motion: reduce) { .nc-xo { transition: none; } }
+/* Neo sidebar inside the expanded view (matches the Neo page sidebar) */
+.nc .nc-hn, .nc .nc-hnav { display: none; }
+.nc.nc-docked .nc-hist [data-hnav] { display: block; }
+.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hh { display: none; }
+.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hn { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: .08em; font-weight: 700; }
+.nc .nc-hn svg { width: 16px; height: 16px; color: var(--nc-accent); }
+.nc .nc-hnav { padding: 4px 8px 12px; border-top: 1px solid var(--nc-line); overflow-y: auto; flex: none; max-height: 55%; }
+.nc .nc-nsec { padding-top: 8px; }
+.nc .nc-nsec h3 { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--nc-muted); font-weight: 700; padding: 6px 8px 4px; }
+.nc .nc-nlink { display: flex; align-items: center; gap: 8px; min-height: 30px; padding: 4px 8px; border-radius: 6px; font-size: 13px; color: var(--nc-fg); text-decoration: none; }
+.nc .nc-nlink:hover { background: var(--nc-tile); }
+.nc .nc-nlink svg { color: var(--nc-muted); flex: none; }
+.nc .nc-nlink span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nc .nc-nlink em { font-style: normal; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 0 7px; background: var(--nc-accent-soft); color: var(--nc-accent); }
+.nc .nc-nlink em.nc-w { background: var(--nc-warn-soft); color: var(--nc-warn); }
+.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) { overflow-y: auto; }
+.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hscroll { flex: none; overflow: visible; }
+.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hnav { max-height: none; overflow: visible; }
+
+/* Home look of the empty state in the larger workspace (same as the Neo tab home) */
+.nc .nc-home, .nc .nc-em { display: none; }
+.nc.nc-expanded .nc-empty, .nc.nc-full .nc-empty { max-width: 760px; }
+.nc.nc-expanded .nc-empty > :not(.nc-home), .nc.nc-full .nc-empty > :not(.nc-home) { display: none; }
+.nc.nc-expanded .nc-home, .nc.nc-full .nc-home { display: block; width: 100%; animation: nc-fade var(--nc-med) var(--nc-ease); }
+.nc .nc-home h2 { font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -.01em; }
+.nc .nc-home .nc-h2b { font-size: 20px; line-height: 28px; } .nc .nc-home .nc-h2b b { color: var(--nc-accent); font-weight: 600; }
+.nc .nc-home .nc-sub { margin: 6px auto 0; }
+.nc .nc-home .nc-cap { margin: 28px 0 10px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--nc-muted); }
+.nc .nc-sgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; text-align: left; }
+.nc .nc-scard { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--nc-line); background: var(--nc-sunk); border-radius: 12px; padding: 14px; text-align: left; transition: border-color var(--nc-fast), background var(--nc-fast); }
+.nc .nc-scard:hover { border-color: var(--nc-accent); background: var(--nc-tile); }
+.nc .nc-scard b { font-size: 14px; font-weight: 600; } .nc .nc-scard span { font-size: 13px; line-height: 18px; color: var(--nc-muted); }
+/* docked sidebar matches the Neo tab sidebar */
+.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hsearch { display: none; }
+.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hgroup h3 { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700; }
+.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-em { display: inline-block; font-style: normal; width: 22px; }
+@media (max-width: 1100px) { .nc .nc-sgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
