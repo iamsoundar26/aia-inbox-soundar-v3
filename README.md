@@ -31,6 +31,13 @@ then lists result rows. Selecting a bill row opens the review panel with extract
 type scale with 32px controls. Chats and decisions are kept in sessionStorage so the panel and the full view continue the
 same thread; the expand button in the panel opens the current chat full-screen and the collapse button returns to the app.
 
+## Expand in place (8 Oct 2026)
+
+On app pages the side panel's Expand button no longer navigates to `neo/#/chat`. The same chat instance grows in place to a
+full-width overlay (history docked left, chat centred, review docked right) and collapses back, so the thread, a running
+answer, drafts, review state and history carry over with no reload. Esc collapses first, then closes. The expanded state is
+kept in sessionStorage (`ST.expanded`), so it survives moving between app pages. The Neo page/tab is unchanged. Assets bumped to `?v=3`.
+
 ## Files added or changed in v2
 
 - `neo/index.html`, `neo/neo.css`, `neo/neo.js` — the workspace. Plain HTML/CSS/JS, hash router, no build step. Sample data and scripted Neo responses live at the top of `neo.js`.
