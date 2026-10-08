@@ -31,12 +31,14 @@ then lists result rows. Selecting a bill row opens the review panel with extract
 type scale with 32px controls. Chats and decisions are kept in sessionStorage so the panel and the full view continue the
 same thread; the expand button in the panel opens the current chat full-screen and the collapse button returns to the app.
 
-## Expand in place (8 Oct 2026)
+## Expand = the Neo page (8 Oct 2026)
 
-On app pages the side panel's Expand button no longer navigates to `neo/#/chat`. The same chat instance grows in place to a
-full-width overlay (history docked left, chat centred, review docked right) and collapses back, so the thread, a running
-answer, drafts, review state and history carry over with no reload. The app's main navigation collapses to its icon rail while Neo is expanded and is restored on collapse; clicking a main-nav item returns to the normal product. The expanded view shows the same Neo sidebar (recent chats, agents, work/runs, knowledge) as the Neo page, whose chat view now shows it too. Esc collapses first, then closes. The expanded state is
-kept in sessionStorage (`ST.expanded`), so it survives moving between app pages. The Neo page/tab is unchanged. Assets bumped to `?v=3`.
+On app pages the side panel's Expand button no longer navigates. The panel widens beside the product nav (which collapses to its
+icon rail), then the Neo workspace itself fades in over it: `neo/?embed=1` in an iframe, so the floating chat and the Neo tab are
+the same UI (home with composer and suggested actions, or the chat view when a chat is open, with the Neo sidebar). Embed mode hides the
+Neo page's own top nav and module nav; collapse and close buttons message the parent (`postMessage {neoEmbed}`). Chats live in
+sessionStorage, so the open conversation carries over; collapsing re-reads that state into the panel. A running answer is stopped on expand.
+Clicking a product nav item, the collapse button or Esc returns to the normal product. The Neo tab keeps the module nav as an icon rail.
 
 ## Files added or changed in v2
 

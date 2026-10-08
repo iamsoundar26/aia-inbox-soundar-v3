@@ -193,11 +193,18 @@
       '<div class="foot"><a href="#/settings" class="' + act("settings") + '">' + icon("settings", "sm") + "Settings</a></div></nav>";
     var modules = [["Dashboard", "grid", "../inbox/"], ["Inbox", "inbox", "../inbox/", '<span class="tag">NEW</span>'], ["Purchases", "cart", "../inbox/"], ["Sales", "tag", "../inbox/"], ["Banking", "bank", "../inbox/"], ["Accounting", "layers", "../inbox/", '<span class="chev">' + icon("chevR") + "</span>"], ["Inventory", "box", "../inbox/"], null, ["GST", "gst", "../inbox/"], ["Sync Management", "refresh", "../inbox/"]];
     var modnav = '<nav class="modnav" aria-label="Modules"><div class="items">' + modules.map(function (m) { return m ? '<a href="' + m[2] + '" data-label="' + m[0] + '">' + icon(m[1]) + "<span>" + m[0] + "</span>" + (m[3] || "") + "</a>" : "<hr>"; }).join("") + '<hr><a href="#/" class="active" aria-current="page" data-label="Neo">' + icon("sparkle") + '<span>Neo</span><span class="tag">NEW</span></a></div><button class="collapse" id="modCollapse" title="Collapse sidebar" aria-label="Collapse sidebar">' + icon("collapse") + "</button></nav>";
-    return '<div class="app">' + TopNav() + '<div class="frame">' + modnav + nav + '<main class="main" id="main">' + (isChat ? view : '<div class="scroll">' + view + "</div>") + "</main></div></div>" + '<div id="overlay"></div>';
+    return '<div class="app">' + (EMBED ? (isChat ? "" : EmbedBar()) : TopNav()) + '<div class="frame">' + modnav + nav + '<main class="main" id="main">' + (isChat ? view : '<div class="scroll">' + view + "</div>") + "</main></div></div>" + '<div id="overlay"></div>';
   }
   function RecentGroup(r) {
     return '<div class="group" id="recentGroup"><h2>Recent chats <button data-go="#/chat/new" aria-label="New chat" title="New chat">' + icon("plus", "sm") + "</button></h2><ul>" +
       NeoChat.history().slice(0, 6).map(function (c) { return '<li><a href="#/chat/' + c.id + '" class="' + (r.parts[0] === "chat" && String(NeoChat.active()) === String(c.id) ? "active" : "") + '"><span class="em">' + ({ inbox: "🧾", attention: "⚠️", dups: "🔍", gst: "🧾", generic: "💬" }[c.sc] || "💬") + '</span><span class="txt">' + esc(c.title) + "</span></a></li>"; }).join("") + "</ul></div>";
+  }
+  /* Embedded in the app (expanded floating Neo): no top nav or module nav, buttons tell the parent to collapse or close. */
+  var EMBED = /[?&]embed=1/.test(location.search);
+  if (EMBED) document.documentElement.classList.add("embed");
+  function toParent(k) { try { parent.postMessage({ neoEmbed: k }, location.origin); } catch (e) {} }
+  function EmbedBar() {
+    return '<div class="embedbar"><span class="eb-t">' + icon("sparkle", "sm") + 'Neo</span><button class="ib" data-embed="collapse" title="Collapse to side panel" aria-label="Collapse to side panel">' + icon("collapse", "sm") + '</button><button class="ib" data-embed="close" title="Close Neo" aria-label="Close Neo">' + icon("x", "sm") + "</button></div>";
   }
   function TopNav() {
     return '<header class="topnav"><div class="brand"><button class="menu-btn tn-link" id="menuBtn" aria-label="Open Neo navigation">' + icon("menu") + '</button><a href="../inbox/" aria-label="AI Accountant home"><img src="../images/logo.png" alt="AI Accountant" width="121" height="24"></a></div>' +
@@ -254,8 +261,8 @@
     if (id === "new" && !q.q) NeoChat.setActive(null);
     chatInst = NeoChat.mount(host, { mode: "full", sidebar: false, restore: !!restore,
       onHistory: function () { var g = document.getElementById("recentGroup"); if (g) g.outerHTML = RecentGroup(route()); },
-      onExpand: function () { var st = NeoChat.state(); st.open = true; try { sessionStorage.setItem("neoChat", JSON.stringify(st)); } catch (e) {} location.href = "../inbox/"; },
-      onClose: function () { go("#/"); } });
+      onExpand: function () { if (EMBED) return toParent("collapse"); var st = NeoChat.state(); st.open = true; try { sessionStorage.setItem("neoChat", JSON.stringify(st)); } catch (e) {} location.href = "../inbox/"; },
+      onClose: function () { if (EMBED) toParent("close"); else go("#/"); } });
     if (restore) { var n = +id; if (!isNaN(n)) chatInst.open(n); }
     if (q.q) chatInst.start(q.q);
     var want = NeoChat.active(); if (want != null && location.hash !== "#/chat/" + want && !q.q) history.replaceState(null, "", "#/chat/" + want);
@@ -431,6 +438,7 @@
   }
   /* ---------- Events ---------- */
   function bind(r) {
+    document.querySelectorAll("[data-embed]").forEach(function (b) { b.onclick = function () { toParent(b.dataset.embed); }; });
     if (!window.__modInit) { window.__modInit = 1; document.body.classList.add("mod-collapsed"); }
     var mc = document.getElementById("modCollapse"); if (mc) mc.onclick = function () { document.body.classList.toggle("mod-collapsed"); };
     var mb = document.getElementById("menuBtn"); if (mb) mb.onclick = function () { var n = document.getElementById("neonav"); if (n) n.classList.toggle("open"); };
@@ -489,7 +497,7 @@
     if (t.id === "modalBg") closeModal();
   });
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") { closeModal(); closeMenus(); }
+    if (e.key === "Escape") { var had = document.querySelector(".modal, .menu"); closeModal(); closeMenus(); if (EMBED && !had && !e.defaultPrevented && !(e.target.closest && e.target.closest(".nc"))) toParent("collapse"); }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j") { e.preventDefault(); focusComposer(); }
     var op = e.target.closest && e.target.closest("[data-open]"); if (op && e.key === "Enter") go("#/chat/" + op.dataset.open);
   });

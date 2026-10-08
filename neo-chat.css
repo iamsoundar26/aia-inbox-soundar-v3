@@ -220,21 +220,8 @@ body.nc-host aside[aria-label="Neo"], body.nc-host button[title="Ask Neo (Ctrl J
 .nc .nc-thread:focus, .nc .nc-hhead h2:focus { outline: none; }
 .nc .nc-thread:focus-visible { outline: 2px solid var(--nc-accent-soft); outline-offset: -2px; border-radius: 0; }
 
-/* Neo sidebar inside the expanded view (matches the Neo page sidebar) */
-.nc .nc-hn, .nc .nc-hnav { display: none; }
-.nc.nc-docked .nc-hist [data-hnav] { display: block; }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hh { display: none; }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hn { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: .08em; font-weight: 700; }
-.nc .nc-hn svg { width: 16px; height: 16px; color: var(--nc-accent); }
-.nc .nc-hnav { padding: 4px 8px 12px; border-top: 1px solid var(--nc-line); overflow-y: auto; flex: none; max-height: 55%; }
-.nc .nc-nsec { padding-top: 8px; }
-.nc .nc-nsec h3 { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--nc-muted); font-weight: 700; padding: 6px 8px 4px; }
-.nc .nc-nlink { display: flex; align-items: center; gap: 8px; min-height: 30px; padding: 4px 8px; border-radius: 6px; font-size: 13px; color: var(--nc-fg); text-decoration: none; }
-.nc .nc-nlink:hover { background: var(--nc-tile); }
-.nc .nc-nlink svg { color: var(--nc-muted); flex: none; }
-.nc .nc-nlink span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.nc .nc-nlink em { font-style: normal; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 0 7px; background: var(--nc-accent-soft); color: var(--nc-accent); }
-.nc .nc-nlink em.nc-w { background: var(--nc-warn-soft); color: var(--nc-warn); }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) { overflow-y: auto; }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hscroll { flex: none; overflow: visible; }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hnav { max-height: none; overflow: visible; }
+/* Expanded Neo workspace (embedded Neo page) over the app, right of the collapsed product nav */
+.nc-xo { position: fixed; top: 50px; right: 0; bottom: 0; left: var(--nc-left, 0px); z-index: 48; background: #fff; opacity: 0; pointer-events: none; transition: opacity 180ms ease; }
+.nc-xo.nc-xo-in { opacity: 1; pointer-events: auto; }
+.nc-xo iframe { width: 100%; height: 100%; border: 0; display: block; }
+@media (prefers-reduced-motion: reduce) { .nc-xo { transition: none; } }
