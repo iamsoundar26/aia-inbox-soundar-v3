@@ -39,6 +39,8 @@ floating chat and the Neo tab share one layout. The thread, a running answer, th
 same DOM nodes before and after. With no chat open, the larger view shows the Neo home look (greeting and suggested actions). The Neo item in the main nav is another entry into the same expanded state (it no longer navigates). Minimize, Esc,
 or clicking a product nav item returns to the normal product. The Neo tab keeps the module nav as an icon rail and shows the same sidebar.
 
+The Neo tab's home is this same screen: `neo/#/` redirects to the open chat, or a new chat, which shows the greeting, suggested actions and composer.
+
 ## Files added or changed in v2
 
 - `neo/index.html`, `neo/neo.css`, `neo/neo.js` — the workspace. Plain HTML/CSS/JS, hash router, no build step. Sample data and scripted Neo responses live at the top of `neo.js`.

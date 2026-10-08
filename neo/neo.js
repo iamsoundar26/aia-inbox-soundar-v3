@@ -149,6 +149,8 @@
   }
   function go(h) { location.hash = h; }
   function render() {
+    /* The Neo home is the chat workspace (same screen as the expanded floating Neo): resume the open chat, else a new one. */
+    if (!route().parts.length) { var act = NeoChat.active(); history.replaceState(null, "", "#/chat/" + (act != null ? act : "new")); }
     var r = route(); S.navOpen = false; closeMenus();
     var p = r.parts, view;
     if (!p.length) view = Home();
@@ -184,7 +186,7 @@
       '<div class="group"><h2>Agents <button data-go="#/agents/new" aria-label="Create agent" title="Create agent">' + icon("plus", "sm") + "</button></h2><ul>" +
       S.agents.map(function (a) { return '<li><a href="#/agents/' + a.id + '" class="' + (r.parts[1] === a.id ? "active" : "") + '">' + icon(a.icon, "sm") + '<span class="txt">' + esc(a.name) + "</span>" + (a.status === "running" ? '<span class="count run">running</span>' : "") + "</a></li>"; }).join("") +
       '<li><a href="#/agents" class="' + (p === "agents" && !r.parts[1] ? "active" : "") + '">' + icon("user", "sm") + '<span class="txt">My agents</span></a></li>' +
-      '<li><a href="#/agents/new" class="' + (r.parts[1] === "new" ? "active" : "") + '">' + icon("plus", "sm") + '<span class="txt">Create agent</span></a></li></ul></div>' +
+      '<li><a href="#/agents/new" class="' + (p === "agents" && r.parts[1] === "new" ? "active" : "") + '">' + icon("plus", "sm") + '<span class="txt">Create agent</span></a></li></ul></div>' +
       '<div class="group"><h2>Work / Runs</h2><ul>' +
       '<li><a href="#/runs?tab=running" class="' + (p === "runs" && (r.q.tab || "running") === "running" && !r.parts[1] ? "active" : "") + '">' + icon("clock", "sm") + '<span class="txt">Running</span><span class="count run">' + runN + "</span></a></li>" +
       '<li><a href="#/attention" class="' + act("attention") + '">' + icon("alert", "sm") + '<span class="txt">Needs attention</span>' + (excN ? '<span class="count warn">' + excN + "</span>" : "") + "</a></li>" +
@@ -398,7 +400,7 @@
   }
 
 
-  function focusComposer() { var p = document.getElementById("prompt"); if (p) { p.focus(); p.scrollIntoView({ block: "center" }); } else go("#/"); }
+  function focusComposer() { var p = document.getElementById("prompt"); if (p) { p.focus(); p.scrollIntoView({ block: "center" }); } else if (chatInst) chatInst.focus(); else go("#/chat/new"); }
   /* ---------- Side panel module (not rendered inside the workspace; the v1 panel lives on the app pages) ---------- */
   var PANEL = { open: false, chat: null, files: [] }; /* legacy, unused: the shared neo-chat.js module renders chat now */
   var PTASKS = [["Work the Inbox with me", "Read, check and prepare every new bill", "inbox", "Review all invoices uploaded today."], ["What needs my attention?", "Waiting, blocked and duplicate documents", "alert", "What needs my attention?"], ["Find duplicates", "Certain matches, with Delete or Keep", "copy", "Find duplicate bills."]];
