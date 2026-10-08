@@ -36,8 +36,8 @@ same thread; the expand button in the panel opens the current chat full-screen a
 On app pages the side panel's Expand button no longer navigates or loads another page. The same chat instance grows beside the
 product nav (which collapses to its icon rail) and gains the Neo sidebar (recent chats, agents, work/runs, knowledge) on the left, so the
 floating chat and the Neo tab share one layout. The thread, a running answer, the draft in the composer, scroll and review state are the
-same DOM nodes before and after. With no chat open, the larger view shows the Neo home look (greeting and suggested actions). Collapse,
-Esc, or clicking a product nav item returns to the normal product. The Neo tab keeps the module nav as an icon rail and shows the same sidebar.
+same DOM nodes before and after. With no chat open, the larger view shows the Neo home look (greeting and suggested actions). The Neo item in the main nav is another entry into the same expanded state (it no longer navigates). Minimize, Esc,
+or clicking a product nav item returns to the normal product. The Neo tab keeps the module nav as an icon rail and shows the same sidebar.
 
 ## Files added or changed in v2
 

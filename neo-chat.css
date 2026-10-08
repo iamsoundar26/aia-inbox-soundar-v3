@@ -257,3 +257,6 @@ body.nc-host aside[aria-label="Neo"], body.nc-host button[title="Ask Neo (Ctrl J
 .nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hgroup h3 { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700; }
 .nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-em { display: inline-block; font-style: normal; width: 22px; }
 @media (max-width: 1100px) { .nc .nc-sgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Neo item in the main nav reads as active while Neo is expanded */
+.nc-neo-full #nav-neo { background: #e2e5fb; color: #3146b0; }

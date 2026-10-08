@@ -254,7 +254,7 @@
     if (id === "new" && !q.q) NeoChat.setActive(null);
     chatInst = NeoChat.mount(host, { mode: "full", sidebar: false, restore: !!restore,
       onHistory: function () { var g = document.getElementById("recentGroup"); if (g) g.outerHTML = RecentGroup(route()); },
-      onExpand: function () { var st = NeoChat.state(); st.open = true; try { sessionStorage.setItem("neoChat", JSON.stringify(st)); } catch (e) {} location.href = "../inbox/"; },
+      onExpand: function () { var st = NeoChat.state(); st.open = true; st.expanded = false; st.navHeld = false; try { sessionStorage.setItem("neoChat", JSON.stringify(st)); } catch (e) {} location.href = "../inbox/"; },
       onClose: function () { go("#/"); } });
     if (restore) { var n = +id; if (!isNaN(n)) chatInst.open(n); }
     if (q.q) chatInst.start(q.q);
