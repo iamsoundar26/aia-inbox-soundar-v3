@@ -82,14 +82,15 @@
   function rich(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
   function nowLabel() { var d = new Date(), h = d.getHours(), m = d.getMinutes(); return ((h % 12) || 12) + ":" + (m < 10 ? "0" : "") + m + (h < 12 ? " am" : " pm"); }
 
-  /* Neo workspace navigation shown in the expanded view (same groups as the Neo page sidebar). */
-  function ico(d) { return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>'; }
-  var NAV_AGENTS = [["invoice-review", "Invoice Review Agent", "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6"], ["ap", "AP Agent", "M3 4h2l2.4 11h10.2L20 7H6"], ["reconciliation", "Reconciliation Agent", "M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M2 10l10-7 10 7"], ["gst", "GST Agent", "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6"], ["month-end", "Month-End Agent", "M4 5h16v16H4zM4 10h16M8 3v4M16 3v4"]];
-  function navHTML() {
-    function a(h, t, d, extra) { return '<a class="nc-nlink" href="' + BASE + "/neo/#/" + h + '">' + ico(d) + "<span>" + t + "</span>" + (extra || "") + "</a>"; }
-    return '<div class="nc-nsec"><h3>Agents</h3>' + NAV_AGENTS.map(function (x) { return a("agents/" + x[0], x[1], x[2], x[0] === "gst" ? '<em class="nc-run">running</em>' : ""); }).join("") + a("agents", "My agents", "M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0") + "</div>" +
-      '<div class="nc-nsec"><h3>Work / Runs</h3>' + a("runs?tab=running", "Running", "M12 7v5l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z", '<em class="nc-cnt">2</em>') + a("attention", "Needs attention", "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z", '<em class="nc-cnt nc-w">7</em>') + a("runs?tab=completed", "Completed", "M20 6L9 17l-5-5") + "</div>" +
-      '<div class="nc-nsec"><h3>Knowledge</h3>' + a("knowledge", "Company context", "M12 7v14M3 18V4a1 1 0 011-1h5a3 3 0 013 3 3 3 0 013-3h5a1 1 0 011 1v14a1 1 0 01-1 1h-6a3 3 0 00-3 3 3 3 0 00-3-3H4a1 1 0 01-1-1z") + a("knowledge", "Accounting rules", "M12 7v14M3 18V4a1 1 0 011-1h5a3 3 0 013 3 3 3 0 013-3h5a1 1 0 011 1v14a1 1 0 01-1 1h-6a3 3 0 00-3 3 3 3 0 00-3-3H4a1 1 0 01-1-1z") + "</div>";
+  /* Neo workspace (nav + screens) is the Neo page's own code, loaded lazily so the expanded view and the Neo tab are literally the same UI. */
+  var NEO_V = "13";
+  function loadWS(cb) {
+    if (window.NeoWorkspace) return cb();
+    if (loadWS.q) { loadWS.q.push(cb); return; }
+    loadWS.q = [cb];
+    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = BASE + "/neo/neo.css?v=" + NEO_V; document.head.appendChild(l);
+    var sc = document.createElement("script"); sc.src = BASE + "/neo/neo.js?v=" + NEO_V;
+    sc.onload = function () { var q = loadWS.q; loadWS.q = null; q.forEach(function (f) { f(); }); }; document.body.appendChild(sc);
   }
 
   /* Main product navigation (the host app's own sidebar): collapse it while Neo is expanded, restore it after. */
@@ -105,13 +106,14 @@
     var mq = window.matchMedia("(min-width: 861px)");
     var root = container; root.className = "nc " + (mode === "full" ? "nc-full" : "nc-panel");
     root.innerHTML =
-      '<aside class="nc-hist" aria-label="Chat history" hidden><div class="nc-hhead"><h2><span class="nc-hh">History</span><span class="nc-hn">' + STAR + 'NEO</span></h2><button class="nc-ibtn" type="button" data-hclose aria-label="Close history">' + X + '</button></div>' +
-      '<div class="nc-hbar"><button class="nc-newbtn" type="button" data-new>' + PLUS + 'New chat</button><div class="nc-hsearch">' + SEARCH + '<label class="nc-sr" for="nc-hs-' + mode + '">Search chats</label><input id="nc-hs-' + mode + '" type="search" placeholder="Search chats" autocomplete="off"></div></div><div class="nc-hscroll" data-hlist></div><div class="nc-hnav" data-hnav></div></aside>' +
+      '<aside class="nc-hist" aria-label="Chat history" hidden><div class="nc-hhead"><h2>History</h2><button class="nc-ibtn" type="button" data-hclose aria-label="Close history">' + X + '</button></div>' +
+      '<div class="nc-hbar"><button class="nc-newbtn" type="button" data-new>' + PLUS + 'New chat</button><div class="nc-hsearch">' + SEARCH + '<label class="nc-sr" for="nc-hs-' + mode + '">Search chats</label><input id="nc-hs-' + mode + '" type="search" placeholder="Search chats" autocomplete="off"></div></div><div class="nc-hscroll" data-hlist></div><div class="neo-scope nc-wsnav" data-wsnav></div></aside>' +
       '<div class="nc-chat"><header class="nc-head"><span class="nc-mark" aria-hidden="true">' + STAR + '</span><div class="nc-ttl"><b data-ttl>Neo</b><span>Accounting agent</span></div><span class="nc-beta">Beta</span>' +
       '<button class="nc-ibtn" type="button" data-histbtn aria-label="Chat history" aria-expanded="false">' + HISTI + '</button><button class="nc-ibtn" type="button" data-new aria-label="New chat">' + PEN + '</button>' +
       '<button class="nc-ibtn" type="button" data-expand aria-label="' + (mode === "full" ? "Minimize to floating chat" : "Expand Neo") + '">' + (mode === "full" ? COLLAPSE : EXPAND) + '</button><button class="nc-ibtn" type="button" data-close aria-label="Close Neo">' + X + "</button></header>" +
       '<div class="nc-thread" data-thread role="region" aria-label="Conversation with Neo" tabindex="0"></div>' +
       '<form class="nc-composer" data-form><div class="nc-box"><div class="nc-fchips" data-fchips></div><input type="file" class="nc-sr" data-file tabindex="-1" aria-hidden="true" accept=".pdf,.jpg,.jpeg,.png"><button class="nc-ibtn nc-sm32" type="button" data-attach aria-label="Attach a bill or document">' + PLUS + '</button><label class="nc-sr" for="nc-in-' + mode + '">Message Neo</label><textarea id="nc-in-' + mode + '" rows="1" placeholder="Ask Neo anything"></textarea><button class="nc-send" type="submit" data-send aria-label="Send" disabled>' + ARROW + '</button></div><p class="nc-hint">Neo can make mistakes. Review extracted details before approving.</p></form></div>' +
+      '<div class="nc-screen" hidden><div class="nc-shead"><button class="nc-ibtn" type="button" data-sexpand aria-label="Minimize to floating chat">' + COLLAPSE + '</button><button class="nc-ibtn" type="button" data-sclose aria-label="Close Neo">' + X + '</button></div><div class="nc-sbody neo-scope" data-sbody></div></div>' +
       '<aside class="nc-work" aria-label="Review bill" hidden><div class="nc-hhead"><h2 data-wt tabindex="-1">Review bill</h2><button class="nc-ibtn" type="button" data-wclose aria-label="Close review panel">' + X + '</button></div><div class="nc-wbody" data-wbody></div><div class="nc-wfoot" data-wfoot></div></aside>' +
       '<div class="nc-sr" role="status" aria-live="polite" data-status></div>';
     var $ = function (s) { return root.querySelector(s); };
@@ -130,11 +132,6 @@
     function activeItem() { return ST.hs.filter(function (h) { return h.id === ST.active; })[0]; }
     function setTitle() { var a = activeItem(); ttl.textContent = a ? a.title : "Neo"; }
     function renderHist() {
-      var flat = opts.inPlace && docked(), EMO = { inbox: "🧾", attention: "⚠️", dups: "🔍", gst: "🧾", generic: "💬" };
-      if (flat && !search.value.trim()) {
-        histList.innerHTML = '<section class="nc-hgroup"><h3>Recent chats</h3>' + ST.hs.slice(0, 6).map(function (h) { return '<button class="nc-hitem" type="button" data-id="' + h.id + '"' + (h.id === ST.active ? ' aria-current="true"' : "") + '><span><i class="nc-em">' + (EMO[h.sc] || "💬") + "</i>" + esc(h.title) + "</span></button>"; }).join("") + "</section>";
-        if (opts.onHistory) opts.onHistory(ST.hs, ST.active); return;
-      }
       var q = search.value.trim().toLowerCase(), groups = ["Today", "Yesterday", "Previous 7 days"], out = "", any = false;
       groups.forEach(function (g) {
         var items = ST.hs.filter(function (h) { return h.group === g && (!q || h.title.toLowerCase().indexOf(q) > -1); });
@@ -333,7 +330,6 @@
     $("[data-hclose]").onclick = function () { openHist(false); };
     root.querySelectorAll("[data-new]").forEach(function (b) { b.onclick = newChat; });
     var expBtn = $("[data-expand]");
-    if (opts.inPlace) $("[data-hnav]").innerHTML = navHTML();
     var navRO = null;
     function trackNav() {
       whenNav(function () {
@@ -362,15 +358,34 @@
       if (instant) { root.classList.add("nc-notrans"); requestAnimationFrame(function () { requestAnimationFrame(function () { root.classList.remove("nc-notrans"); }); }); }
       /* Sidebar and panel width animate together (one 240ms move) instead of one after the other. */
       if (on) {
-        trackNav(); setFull(true); root.classList.add("nc-pre"); void root.offsetWidth;
+        trackNav(); inst.ensureWS(); setFull(true); root.classList.add("nc-pre"); void root.offsetWidth;
         root.classList.add("nc-expanded"); root.classList.remove("nc-pre");
       } else {
-        releaseNav(); root.classList.add("nc-pre"); root.classList.remove("nc-expanded");
+        releaseNav(); inst.resetWS(); root.classList.add("nc-pre"); root.classList.remove("nc-expanded");
         var settle = function () { setFull(false); root.classList.remove("nc-pre"); };
         if (quick) settle(); else expT = setTimeout(settle, 250);
       }
     };
     inst.expanded = function () { return expanded; };
+    var screenEl = $(".nc-screen");
+    function screenOn(on) { screenEl.hidden = !on; root.classList.toggle("nc-onscreen", on); }
+    inst.screenOn = screenOn;
+    inst.routeChat = function (id, q) {
+      screenOn(false);
+      if (q) { inst.start(q); return; }
+      if (id === "new" || id == null) { if (ST.active != null) newChat(); }
+      else { var n = +id; if (!isNaN(n) && n !== ST.active) inst.open(n); }
+    };
+    var wsAttached = false;
+    function chatHash() { return "/chat/" + (ST.active != null ? ST.active : "new"); }
+    inst.ensureWS = function () {
+      loadWS(function () {
+        if (!wsAttached) { wsAttached = true; NeoWorkspace.attach({ nav: $("[data-wsnav]"), screen: $("[data-sbody]"), hash: chatHash(), onScreen: screenOn, onChat: inst.routeChat }); }
+        else NeoWorkspace.setRoute(chatHash());
+      });
+    };
+    inst.resetWS = function () { screenOn(false); if (window.NeoWorkspace && wsAttached) NeoWorkspace.setRoute(chatHash()); };
+    if (opts.inPlace) { $("[data-sexpand]").onclick = function () { inst.setExpanded(false); }; $("[data-sclose]").onclick = function () { if (opts.onClose) opts.onClose(); }; }
     expBtn.onclick = function () { if (opts.inPlace) inst.setExpanded(!expanded); else if (opts.onExpand) opts.onExpand(ST.active); };
     $("[data-close]").onclick = function () { if (opts.onClose) opts.onClose(); };
     (mq.addEventListener ? mq.addEventListener("change", syncLayout) : mq.addListener(syncLayout));
@@ -393,7 +408,11 @@
     var panel = document.createElement("aside"); panel.setAttribute("aria-label", "Neo chat");
     document.body.append(tab, panel);
     var inst = mount(panel, { mode: "panel", inPlace: true,
+      onHistory: function () { if (window.NeoWorkspace) NeoWorkspace.refreshNav(); },
       onClose: function () { setOpen(false); } });
+    /* warm up the Neo workspace code so the sidebar is ready the moment Neo expands */
+    function warm() { setTimeout(function () { loadWS(function () {}); }, 400); }
+    if (document.readyState === "complete") warm(); else window.addEventListener("load", warm);
     function setOpen(o) { ST.open = o; save(); if (!o && inst.expanded()) setTimeout(function () { if (!ST.open) inst.setExpanded(false, true); }, 260); panel.classList.toggle("nc-open", o); tab.hidden = o; panel.setAttribute("aria-hidden", String(!o)); var pill = document.querySelector('header button[aria-label="Ask Neo"]'); if (pill) pill.setAttribute("aria-pressed", String(o)); if (o) inst.focus(); }
     tab.onclick = function () { setOpen(true); };
     /* The Neo item in the main nav is another entry point into the same expanded state, not a separate page. */

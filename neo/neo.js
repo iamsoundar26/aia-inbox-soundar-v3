@@ -135,6 +135,7 @@
     agents: AGENTS, runs: RUNS, exc: EXC.slice(), resolved: {}, approved: false,
     explain: true, agentPick: "Auto", files: [], navOpen: false, workSheet: false, hiMenu: null
   };
+  var E = null; /* embedded context when run inside the app (expanded floating Neo): {nav, screen, hash, onChat, onScreen} */
   function chat(id) { return S.chats.filter(function (c) { return c.id === id; })[0]; }
   function agent(id) { return S.agents.filter(function (a) { return a.id === id; })[0]; }
   function run(id) { return S.runs.filter(function (r) { return r.id === id; })[0]; }
@@ -143,29 +144,33 @@
   /* ---------- Router ---------- */
   var app = document.getElementById("app");
   function route() {
-    var h = location.hash.replace(/^#/, "") || "/", q = {};
+    var h = (E ? E.hash : location.hash).replace(/^#/, "") || "/", q = {};
     var qi = h.indexOf("?"); if (qi > -1) { h.slice(qi + 1).split("&").forEach(function (p) { var kv = p.split("="); q[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || ""); }); h = h.slice(0, qi); }
     return { path: h, parts: h.split("/").filter(Boolean), q: q };
   }
-  function go(h) { location.hash = h; }
+  function go(h) { if (E) { E.hash = h.replace(/^#/, ""); render(); } else location.hash = h; }
+  function viewFor(r) {
+    var p = r.parts;
+    if (!p.length) return Home();
+    if (p[0] === "chat") return Chat(p[1], r.q);
+    if (p[0] === "attention") return Attention();
+    if (p[0] === "agents" && p[1] === "new") return CreateAgent();
+    if (p[0] === "agents" && p[1] && p[2] === "permissions") return Permissions(p[1]);
+    if (p[0] === "agents" && p[1] && p[2] === "automation") return Automation(p[1]);
+    if (p[0] === "agents" && p[1]) return AgentDetail(p[1]);
+    if (p[0] === "agents") return Agents();
+    if (p[0] === "runs" && p[1]) return RunDetail(p[1]);
+    if (p[0] === "runs") return Runs(r.q.tab || "running");
+    if (p[0] === "knowledge") return Knowledge();
+    if (p[0] === "settings") return Settings();
+    return Home();
+  }
   function render() {
+    if (E) return renderEmbedded();
     /* The Neo home is the chat workspace (same screen as the expanded floating Neo): resume the open chat, else a new one. */
     if (!route().parts.length) { var act = NeoChat.active(); history.replaceState(null, "", "#/chat/" + (act != null ? act : "new")); }
     var r = route(); S.navOpen = false; closeMenus();
-    var p = r.parts, view;
-    if (!p.length) view = Home();
-    else if (p[0] === "chat") view = Chat(p[1], r.q);
-    else if (p[0] === "attention") view = Attention();
-    else if (p[0] === "agents" && p[1] === "new") view = CreateAgent();
-    else if (p[0] === "agents" && p[1] && p[2] === "permissions") view = Permissions(p[1]);
-    else if (p[0] === "agents" && p[1] && p[2] === "automation") view = Automation(p[1]);
-    else if (p[0] === "agents" && p[1]) view = AgentDetail(p[1]);
-    else if (p[0] === "agents") view = Agents();
-    else if (p[0] === "runs" && p[1]) view = RunDetail(p[1]);
-    else if (p[0] === "runs") view = Runs(r.q.tab || "running");
-    else if (p[0] === "knowledge") view = Knowledge();
-    else if (p[0] === "settings") view = Settings();
-    else view = Home();
+    var p = r.parts, view = viewFor(r);
     var isChat = p[0] === "chat";
     app.innerHTML = Shell(view, r, isChat);
     bind(r);
@@ -174,12 +179,23 @@
     var sc = app.querySelector(".main .scroll"); if (sc) sc.scrollTop = 0;
   }
 
+  /* Embedded in the app: same nav and screens, rendered in place. Chat is not a screen here: the floating chat instance shows it. */
+  function renderEmbedded() {
+    var r = route(), p = r.parts; S.navOpen = false; closeMenus();
+    if (!p.length) { E.hash = "/chat/" + (NeoChat.active() != null ? NeoChat.active() : "new"); r = route(); p = r.parts; }
+    E.nav.innerHTML = NavHTML(r);
+    if (p[0] === "chat") { E.onScreen(false); E.onChat(p[1] || "new", r.q.q); return; }
+    E.screen.innerHTML = '<main class="main" id="main"><div class="scroll">' + viewFor(r) + "</div></main>";
+    E.onScreen(true); bind(r);
+    var sc = E.screen.querySelector(".scroll"); if (sc) sc.scrollTop = 0;
+  }
+
   /* ---------- Shell ---------- */
-  function Shell(view, r, isChat) {
+  function NavHTML(r) {
     var p = r.parts[0] || "";
     function act(k) { return p === k ? " active" : ""; }
     var excN = openExc().length, runN = S.runs.filter(function (x) { return x.status === "running"; }).length;
-    var nav = '<nav class="neonav" id="neonav" aria-label="Neo">' +
+    return '<nav class="neonav" id="neonav" aria-label="Neo">' +
       '<div class="head">' + icon("sparkle", "lg") + "<h1>NEO</h1></div>" +
       '<button class="new" data-go="#/chat/new">' + icon("plus") + "New chat</button>" +
       RecentGroup(r) +
@@ -193,6 +209,9 @@
       '<li><a href="#/runs?tab=completed" class="' + (p === "runs" && r.q.tab === "completed" ? "active" : "") + '">' + icon("check", "sm") + '<span class="txt">Completed</span></a></li></ul></div>' +
       '<div class="group"><h2>Knowledge</h2><ul>' + ["Company context", "Accounting rules", "Vendors", "Chart of Accounts", "GST configuration"].map(function (k) { return '<li><a href="#/knowledge?s=' + encodeURIComponent(k) + '" class="' + (p === "knowledge" && r.q.s === k ? "active" : "") + '">' + icon("book", "sm") + '<span class="txt">' + k + "</span></a></li>"; }).join("") + "</ul></div>" +
       '<div class="foot"><a href="#/settings" class="' + act("settings") + '">' + icon("settings", "sm") + "Settings</a></div></nav>";
+  }
+  function Shell(view, r, isChat) {
+    var nav = NavHTML(r);
     var modules = [["Dashboard", "grid", "../inbox/"], ["Inbox", "inbox", "../inbox/", '<span class="tag">NEW</span>'], ["Purchases", "cart", "../inbox/"], ["Sales", "tag", "../inbox/"], ["Banking", "bank", "../inbox/"], ["Accounting", "layers", "../inbox/", '<span class="chev">' + icon("chevR") + "</span>"], ["Inventory", "box", "../inbox/"], null, ["GST", "gst", "../inbox/"], ["Sync Management", "refresh", "../inbox/"]];
     var modnav = '<nav class="modnav" aria-label="Modules"><div class="items">' + modules.map(function (m) { return m ? '<a href="' + m[2] + '" data-label="' + m[0] + '">' + icon(m[1]) + "<span>" + m[0] + "</span>" + (m[3] || "") + "</a>" : "<hr>"; }).join("") + '<hr><a href="#/" class="active" aria-current="page" data-label="Neo">' + icon("sparkle") + '<span>Neo</span><span class="tag">NEW</span></a></div><button class="collapse" id="modCollapse" title="Collapse sidebar" aria-label="Collapse sidebar">' + icon("collapse") + "</button></nav>";
     return '<div class="app">' + TopNav() + '<div class="frame">' + modnav + nav + '<main class="main" id="main">' + (isChat ? view : '<div class="scroll">' + view + "</div>") + "</main></div></div>" + '<div id="overlay"></div>';
@@ -373,8 +392,9 @@
   }
 
   /* ---------- Overlays ---------- */
-  function toast(msg) { var o = document.getElementById("overlay"); var t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.innerHTML = icon("check") + esc(msg); o.appendChild(t); setTimeout(function () { t.remove(); }, 3200); }
-  function modal(html) { var o = document.getElementById("overlay"); o.innerHTML = '<div class="modal-bg" id="modalBg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">' + html + "</div></div>"; var f = o.querySelector(".modal button, .modal a"); if (f) f.focus(); }
+  function ov() { var o = document.getElementById("overlay"); if (!o) { o = document.createElement("div"); o.id = "overlay"; o.className = "neo-scope"; document.body.appendChild(o); } return o; }
+  function toast(msg) { var o = ov(); var t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.innerHTML = icon("check") + esc(msg); o.appendChild(t); setTimeout(function () { t.remove(); }, 3200); }
+  function modal(html) { var o = ov(); o.innerHTML = '<div class="modal-bg" id="modalBg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">' + html + "</div></div>"; var f = o.querySelector(".modal button, .modal a"); if (f) f.focus(); }
   function closeModal() { var m = document.getElementById("modalBg"); if (m) m.remove(); }
   function closeMenus() { document.querySelectorAll(".menu").forEach(function (m) { m.remove(); }); document.querySelectorAll(".pop").forEach(function (p) { p.hidden = true; }); }
   function approveModal(n, total, exc) {
@@ -433,7 +453,7 @@
   }
   /* ---------- Events ---------- */
   function bind(r) {
-    if (!window.__modInit) { window.__modInit = 1; document.body.classList.add("mod-collapsed"); }
+    if (!E && !window.__modInit) { window.__modInit = 1; document.body.classList.add("mod-collapsed"); }
     var mc = document.getElementById("modCollapse"); if (mc) mc.onclick = function () { document.body.classList.toggle("mod-collapsed"); };
     var mb = document.getElementById("menuBtn"); if (mb) mb.onclick = function () { var n = document.getElementById("neonav"); if (n) n.classList.toggle("open"); };
     var ta = document.getElementById("prompt"), form = document.getElementById("composer"), send = document.getElementById("sendBtn");
@@ -466,6 +486,7 @@
   }
   document.addEventListener("click", function (e) {
     var t = e.target;
+    var ln = E && t.closest("a[href^='#/']"); if (ln && (E.nav.contains(ln) || E.screen.contains(ln))) { e.preventDefault(); go(ln.getAttribute("href")); return; }
     if (t.closest("#askNeo")) { focusComposer(); return; }
     if (t.closest("[data-pclose]")) { openPanel(false); return; }
     if (t.closest("[data-pnew]")) { PANEL.chat = null; PANEL.files = []; paintPanel(); return; }
@@ -492,9 +513,16 @@
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") { closeModal(); closeMenus(); }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j") { e.preventDefault(); focusComposer(); }
+    if (!E && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j") { e.preventDefault(); focusComposer(); }
     var op = e.target.closest && e.target.closest("[data-open]"); if (op && e.key === "Enter") go("#/chat/" + op.dataset.open);
   });
-  window.addEventListener("hashchange", render);
-  render();
+  window.addEventListener("hashchange", function () { if (!E && app) render(); });
+  window.NeoWorkspace = {
+    attach: function (o) { E = o; E.hash = E.hash || "/chat/new"; render(); },
+    detach: function () { E = null; },
+    refreshNav: function () { if (E) E.nav.innerHTML = NavHTML(route()); },
+    setRoute: function (h) { if (E) { E.hash = h; E.nav.innerHTML = NavHTML(route()); } },
+    route: function () { return E ? route() : null }
+  };
+  if (app) render();
 })();

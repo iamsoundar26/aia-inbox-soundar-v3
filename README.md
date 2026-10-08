@@ -31,15 +31,16 @@ then lists result rows. Selecting a bill row opens the review panel with extract
 type scale with 32px controls. Chats and decisions are kept in sessionStorage so the panel and the full view continue the
 same thread; the expand button in the panel opens the current chat full-screen and the collapse button returns to the app.
 
-## Expand in place, one instance (8 Oct 2026)
+## Unified Neo: one sidebar, one set of screens (8 Oct 2026)
 
-On app pages the side panel's Expand button no longer navigates or loads another page. The same chat instance grows beside the
-product nav (which collapses to its icon rail) and gains the Neo sidebar (recent chats, agents, work/runs, knowledge) on the left, so the
-floating chat and the Neo tab share one layout. The thread, a running answer, the draft in the composer, scroll and review state are the
-same DOM nodes before and after. With no chat open, the larger view shows the Neo home look (greeting and suggested actions). The Neo item in the main nav is another entry into the same expanded state (it no longer navigates). Minimize, Esc,
-or clicking a product nav item returns to the normal product. The Neo tab keeps the module nav as an icon rail and shows the same sidebar.
-
-The Neo tab's home is this same screen: `neo/#/` redirects to the open chat, or a new chat, which shows the greeting, suggested actions and composer.
+The floating chat, its expanded state and the Neo tab run the same code. `neo/neo.js` exposes `NeoWorkspace`: its sidebar
+(`NavHTML`) and its screens (agents, runs, needs attention, knowledge, settings, agent detail) render either into the Neo page or, when
+Neo is expanded on an app page, into the panel itself (`.nc-wsnav` sidebar, `.nc-screen` main area). Neo code and `neo.css` are loaded
+lazily on app pages; `neo.css` is scoped under `.neo-scope` so it cannot affect the product. Clicking My agents, Running, an agent
+and so on swaps the main area in place (no page load, product page and URL untouched); the chat stays the same instance, so clicking a
+recent chat or New chat returns to it with the transcript, draft and running answer intact. Minimize returns to the floating chat from
+any screen. Expanding grows the panel and the sidebar in one 240ms move beside the collapsed product nav. The Neo tab's home is the chat
+workspace (greeting, suggested actions, composer). `neo.css` is now the scoped file and the source of truth.
 
 ## Files added or changed in v2
 

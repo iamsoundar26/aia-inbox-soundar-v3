@@ -222,26 +222,9 @@ body.nc-host aside[aria-label="Neo"], body.nc-host button[title="Ask Neo (Ctrl J
 .nc .nc-thread:focus-visible { outline: 2px solid var(--nc-accent-soft); outline-offset: -2px; border-radius: 0; }
 
 /* Neo sidebar inside the expanded view (matches the Neo page sidebar) */
-.nc .nc-hn, .nc .nc-hnav { display: none; }
-.nc.nc-docked .nc-hist [data-hnav] { display: block; }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hh { display: none; }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hn { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: .08em; font-weight: 700; }
-.nc .nc-hn svg { width: 16px; height: 16px; color: var(--nc-accent); }
-.nc .nc-hnav { padding: 4px 8px 12px; border-top: 1px solid var(--nc-line); overflow-y: auto; flex: none; max-height: 55%; }
-.nc .nc-nsec { padding-top: 8px; }
-.nc .nc-nsec h3 { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--nc-muted); font-weight: 700; padding: 6px 8px 4px; }
-.nc .nc-nlink { display: flex; align-items: center; gap: 8px; min-height: 30px; padding: 4px 8px; border-radius: 6px; font-size: 13px; color: var(--nc-fg); text-decoration: none; }
-.nc .nc-nlink:hover { background: var(--nc-tile); }
-.nc .nc-nlink svg { color: var(--nc-muted); flex: none; }
-.nc .nc-nlink span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.nc .nc-nlink em { font-style: normal; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 0 7px; background: var(--nc-accent-soft); color: var(--nc-accent); }
-.nc .nc-nlink em.nc-w { background: var(--nc-warn-soft); color: var(--nc-warn); }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) { overflow-y: auto; }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hscroll { flex: none; overflow: visible; }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hnav { max-height: none; overflow: visible; }
 
 /* Home look of the empty state in the larger workspace (same as the Neo tab home) */
-.nc .nc-home, .nc .nc-em { display: none; }
+.nc .nc-home { display: none; }
 .nc.nc-expanded .nc-empty, .nc.nc-full .nc-empty { max-width: 760px; }
 .nc.nc-expanded .nc-empty > :not(.nc-home), .nc.nc-full .nc-empty > :not(.nc-home) { display: none; }
 .nc.nc-expanded .nc-home, .nc.nc-full .nc-home { display: block; width: 100%; animation: nc-fade var(--nc-med) var(--nc-ease); }
@@ -254,10 +237,19 @@ body.nc-host aside[aria-label="Neo"], body.nc-host button[title="Ask Neo (Ctrl J
 .nc .nc-scard:hover { border-color: var(--nc-accent); background: var(--nc-tile); }
 .nc .nc-scard b { font-size: 14px; font-weight: 600; } .nc .nc-scard span { font-size: 13px; line-height: 18px; color: var(--nc-muted); }
 /* docked sidebar matches the Neo tab sidebar */
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hsearch { display: none; }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-hgroup h3 { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700; }
-.nc.nc-docked .nc-hist:has([data-hnav]:not(:empty)) .nc-em { display: inline-block; font-style: normal; width: 22px; }
 @media (max-width: 1100px) { .nc .nc-sgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* Neo item in the main nav reads as active while Neo is expanded */
 .nc-neo-full #nav-neo { background: #e2e5fb; color: #3146b0; }
+
+/* Expanded view hosts the Neo page's own sidebar and screens (neo.js, scoped under .neo-scope) */
+.nc .nc-wsnav, .nc .nc-screen { display: none; }
+.nc.nc-docked .nc-hist > :not(.nc-wsnav) { display: none; }
+.nc.nc-docked .nc-hist { border-right: 0; background: transparent; overflow: hidden; }
+.nc.nc-docked .nc-hist .nc-wsnav { display: flex; flex: 1; min-height: 0; min-width: 247px; }
+.nc-wsnav .neonav { flex: 1; width: 100%; position: static; transform: none; box-shadow: none; }
+.nc.nc-docked .nc-screen:not([hidden]) { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.nc .nc-shead { height: 44px; flex: none; display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding: 0 12px; border-bottom: 1px solid var(--nc-line); }
+.nc .nc-sbody { flex: 1; min-height: 0; display: flex; flex-direction: column; background: #fff; }
+.nc .nc-sbody .main { flex: 1; min-height: 0; }
+.nc.nc-onscreen .nc-chat, .nc.nc-onscreen .nc-work { display: none; }
