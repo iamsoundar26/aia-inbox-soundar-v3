@@ -410,7 +410,6 @@ section.suggest .grid { display: grid; grid-template-columns: repeat(6, 1fr); ga
 /* ---------- Responsive ---------- */
 .menu-btn { display: none; }
 @media (max-width: 1240px) {
-  .modnav { display: none; }
   .chat-frame { grid-template-columns: var(--sub-w) minmax(0,1fr); }
   .chat-frame .work { display: none; }
   .work-toggle { display: inline-flex; }
@@ -429,6 +428,7 @@ section.suggest .grid { display: grid; grid-template-columns: repeat(6, 1fr); ga
   .sticky-foot { margin: 24px -16px -48px; padding: 12px 16px; }
 }
 @media (max-width: 640px) {
+  .modnav { display: none; }
   section.suggest .grid { grid-template-columns: repeat(2, 1fr); }
   .stats { grid-template-columns: 1fr 1fr; }
   .hero h1 { font-size: 22px; line-height: 28px; } .hero h1 + p { font-size: 18px; line-height: 24px; }

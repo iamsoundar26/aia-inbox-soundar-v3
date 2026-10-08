@@ -431,6 +431,7 @@
   }
   /* ---------- Events ---------- */
   function bind(r) {
+    if (!window.__modInit) { window.__modInit = 1; document.body.classList.add("mod-collapsed"); }
     var mc = document.getElementById("modCollapse"); if (mc) mc.onclick = function () { document.body.classList.toggle("mod-collapsed"); };
     var mb = document.getElementById("menuBtn"); if (mb) mb.onclick = function () { var n = document.getElementById("neonav"); if (n) n.classList.toggle("open"); };
     var ta = document.getElementById("prompt"), form = document.getElementById("composer"), send = document.getElementById("sendBtn");
