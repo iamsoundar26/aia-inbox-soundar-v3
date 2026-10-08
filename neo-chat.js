@@ -123,8 +123,8 @@
     function say(m) { statusEl.textContent = ""; setTimeout(function () { statusEl.textContent = m; }, 60); }
     function setRunning(r) { running = r; send.innerHTML = r ? STOP : ARROW; send.setAttribute("aria-label", r ? "Stop Neo" : "Send"); send.type = r ? "button" : "submit"; send.disabled = !r && !input.value.trim() && !files.length; }
     var side = opts.sidebar !== false;
-    var expanded = false, shrinking = false, expT = 0;
-    function docked() { return mode === "full" && mq.matches && !shrinking; }
+    var expanded = false, expT = 0;
+    function docked() { return mode === "full" && mq.matches; }
     function syncLayout() { root.classList.toggle("nc-docked", docked()); hist.hidden = docked() ? !side : !histOpen; histBtn.hidden = docked(); histBtn.setAttribute("aria-expanded", String(!hist.hidden)); work.hidden = !workOpen; }
     function openHist(o) { histOpen = o; if (o) workOpen = false; syncLayout(); if (o) search.focus(); else histBtn.focus(); }
     function activeItem() { return ST.hs.filter(function (h) { return h.id === ST.active; })[0]; }
@@ -359,14 +359,15 @@
       expanded = on; ST.expanded = on; save(); clearTimeout(expT);
       document.body.classList.toggle("nc-neo-full", on); expBtn.innerHTML = on ? COLLAPSE : EXPAND; expBtn.setAttribute("aria-label", on ? "Minimize to floating chat" : "Expand Neo");
       var quick = instant || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (instant) { root.classList.add("nc-notrans"); requestAnimationFrame(function () { requestAnimationFrame(function () { root.classList.remove("nc-notrans"); }); }); }
+      /* Sidebar and panel width animate together (one 240ms move) instead of one after the other. */
       if (on) {
-        trackNav(); root.classList.add("nc-expanded");
-        var arrive = function () { setFull(true); if (!quick) { root.classList.add("nc-arrive"); expT = setTimeout(function () { root.classList.remove("nc-arrive"); }, 260); } };
-        if (quick) arrive(); else expT = setTimeout(arrive, 270);
+        trackNav(); setFull(true); root.classList.add("nc-pre"); void root.offsetWidth;
+        root.classList.add("nc-expanded"); root.classList.remove("nc-pre");
       } else {
-        releaseNav(); root.classList.remove("nc-arrive"); shrinking = true; syncLayout(); root.classList.remove("nc-expanded");
-        var settle = function () { shrinking = false; setFull(false); };
-        if (quick) settle(); else expT = setTimeout(settle, 270);
+        releaseNav(); root.classList.add("nc-pre"); root.classList.remove("nc-expanded");
+        var settle = function () { setFull(false); root.classList.remove("nc-pre"); };
+        if (quick) settle(); else expT = setTimeout(settle, 250);
       }
     };
     inst.expanded = function () { return expanded; };
